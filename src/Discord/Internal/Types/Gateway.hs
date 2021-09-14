@@ -18,6 +18,7 @@ import Text.Read (readMaybe)
 
 import Discord.Internal.Types.Prelude
 import Discord.Internal.Types.Events
+import Discord.Internal.Types.Voice
 
 -- | Represents data sent and received with Discord servers
 data GatewayReceivable
@@ -27,6 +28,8 @@ data GatewayReceivable
   | InvalidSession Bool
   | Hello Int
   | HeartbeatAck
+  | VoiceStateUpdateResponse VoiceState
+  | VoiceServerUpdateResponse VoiceServer
   | ParseError T.Text
   deriving (Show, Eq)
 
@@ -103,9 +106,10 @@ instance FromJSON GatewayReceivable where
                ejson <- o .: "d"
                case ejson of
                  Object hm -> Dispatch <$> eventParse etype hm <*> o .: "s"
-                 _other -> Dispatch (UnknownEvent ("Dispatch payload wasn't an object") o)
+                 _other -> Dispatch (UnknownEvent "Dispatch payload wasn't an object" o)
                                   <$> o .: "s"
       1  -> HeartbeatRequest . fromMaybe 0 . readMaybe <$> o .: "d"
+      4  -> VoiceStateUpdateResponse <$> o .: "d"
       7  -> pure Reconnect
       9  -> InvalidSession <$> o .: "d"
       10 -> do od <- o .: "d"
@@ -113,17 +117,6 @@ instance FromJSON GatewayReceivable where
                pure (Hello int)
       11 -> pure HeartbeatAck
       _  -> fail ("Unknown Receivable payload ID:" <> show op)
-
--- instance FromJSON GatewaySendable where
---   parseJSON = withObject "payload" $ \o -> do
---     op <- o .: "op" :: Parser Int
---     case op of
---       1  -> Heartbeat . fromMaybe 0 . readMaybe <$> o .: "d"
---       2  -> do od <- o .: "d"
---                tok <- od .: "token"
---                compress <- od .:? "compress" .!= False
---
---       _  -> fail ("Unknown Sendable payload ID:" <> show op)
 
 instance ToJSON GatewaySendable where
   toJSON (Heartbeat i) = object [ "op" .= (1 :: Int), "d" .= if i <= 0 then "null" else show i ]

@@ -44,5 +44,3 @@ startHandler = do
   -- gateway commands are enumerated in the discord docs
   -- https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-commands
   sendCommand (RequestGuildMembers opts)
-
-

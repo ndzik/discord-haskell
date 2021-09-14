@@ -1,7 +1,5 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | Provides actions for Voice API interactions
@@ -26,11 +24,11 @@ data VoiceRequest a where
 
 voiceMajorRoute :: VoiceRequest a -> String
 voiceMajorRoute c = case c of
-  (ListVoiceRegions) -> "whatever "
+  ListVoiceRegions -> "whatever "
 
 voices :: R.Url 'R.Https
 voices = baseUrl /: "voice"
 
 voiceJsonRequest :: VoiceRequest r -> JsonRequest
 voiceJsonRequest c = case c of
-  (ListVoiceRegions) -> Get (voices /: "regions") mempty
+  ListVoiceRegions -> Get (voices /: "regions") mempty

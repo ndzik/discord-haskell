@@ -17,6 +17,7 @@ import Discord.Internal.Types.Prelude
 import Discord.Internal.Types.Channel
 import Discord.Internal.Types.Guild
 import Discord.Internal.Types.User (User)
+import Discord.Internal.Types.Voice
 
 
 -- | Represents possible events sent by discord. Detailed information can be found at https://discord.com/developers/docs/topics/gateway.
@@ -52,8 +53,8 @@ data Event =
   | PresenceUpdate          PresenceInfo
   | TypingStart             TypingInfo
   | UserUpdate              User
-  -- | VoiceStateUpdate
-  -- | VoiceServerUpdate
+  | VoiceStateUpdate        VoiceState
+  | VoiceServerUpdate       VoiceServer
   | UnknownEvent     T.Text Object
   deriving (Show, Eq)
 
@@ -169,6 +170,6 @@ eventParse t o = case t of
     "PRESENCE_UPDATE"           -> PresenceUpdate            <$> reparse o
     "TYPING_START"              -> TypingStart               <$> reparse o
     "USER_UPDATE"               -> UserUpdate                <$> reparse o
- -- "VOICE_STATE_UPDATE"        -> VoiceStateUpdate          <$> reparse o
- -- "VOICE_SERVER_UPDATE"       -> VoiceServerUpdate         <$> reparse o
+    "VOICE_SERVER_UPDATE"       -> VoiceServerUpdate         <$> reparse o
+    "VOICE_STATE_UPDATE"        -> VoiceStateUpdate          <$> reparse o
     _other_event                -> UnknownEvent t            <$> reparse o

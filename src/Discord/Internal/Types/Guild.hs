@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 
 -- | Types relating to Discord Guilds (servers)
 module Discord.Internal.Types.Guild where
@@ -30,6 +31,16 @@ instance FromJSON GuildMember where
                 <*> o .:  "joined_at"
                 <*> o .:  "deaf"
                 <*> o .:  "mute"
+
+instance ToJSON GuildMember where
+  toJSON GuildMember{..} = object [(name, value) | (name, Just value) <-
+                          [ ("user", pure (toJSON memberUser))
+                          , ("nick", toJSON <$> memberNick)
+                          , ("roles", pure (toJSON memberRoles))
+                          , ("joined_at", pure (toJSON memberJoinedAt))
+                          , ("deaf", pure (toJSON memberDeaf))
+                          , ("mute", pure (toJSON memberMute))
+                          ]]
 
 
 -- https://discord.com/developers/docs/resources/guild#guild-object
